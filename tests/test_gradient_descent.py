@@ -298,3 +298,36 @@ class TestGradientDescentOptimizer:
         
         with pytest.raises(ValueError, match="X and y must be provided"):
             optimizer.optimize(loss_fn, gradient_fn, np.array([1.0]))
+    
+    def test_batch_size_larger_than_dataset(self):
+        """Test that batch size larger than dataset works with replacement."""
+        # Create small dataset
+        np.random.seed(42)
+        X = np.random.randn(5, 1)
+        y = 2 * X + 1
+        
+        def loss_fn(params, X_batch, y_batch):
+            predictions = X_batch @ params[:-1].reshape(-1, 1) + params[-1]
+            return np.mean((predictions - y_batch) ** 2)
+        
+        def gradient_fn(params, X_batch, y_batch):
+            predictions = X_batch @ params[:-1].reshape(-1, 1) + params[-1]
+            error = predictions - y_batch
+            grad_w = 2 * np.mean(X_batch * error, axis=0)
+            grad_b = 2 * np.mean(error)
+            return np.append(grad_w, grad_b)
+        
+        # Batch size larger than dataset
+        optimizer = GradientDescentOptimizer(
+            learning_rate=0.1,
+            batch_size=10,
+            max_iterations=50
+        )
+        
+        initial_params = np.array([0.0, 0.0])
+        # Should not raise an error
+        result = optimizer.optimize(loss_fn, gradient_fn, initial_params, X, y)
+        
+        # Should still learn something reasonable
+        assert abs(result[0] - 2.0) < 1.0
+        assert abs(result[1] - 1.0) < 1.0

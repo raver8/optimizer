@@ -109,7 +109,10 @@ class GradientDescentOptimizer:
                     batch_y = y[idx:idx+1]
                 else:
                     # Mini-batch - random subset
-                    indices = np.random.choice(n_samples, self.batch_size, replace=False)
+                    # Use replace=False if batch_size <= n_samples, otherwise replace=True
+                    replace = self.batch_size > n_samples
+                    actual_batch_size = min(self.batch_size, n_samples)
+                    indices = np.random.choice(n_samples, actual_batch_size, replace=replace)
                     batch_X = X[indices]
                     batch_y = y[indices]
                 
