@@ -149,7 +149,13 @@ Main optimizer class for gradient descent.
 
 ## Examples
 
-Run the included examples:
+First, install the package in development mode:
+
+```bash
+pip install -e .
+```
+
+Then run the included examples:
 
 ```bash
 # Simple quadratic optimization
